@@ -38,6 +38,7 @@ func runPipeline(args []string) {
 	dataDir := fs.String("data", "data", "path to the data directory containing catalog/, meridian/, apex/, cornerstone/, helix/")
 	outPath := fs.String("out", filepath.Join("output", "unified_requests.json"), "path to write the unified course-request output to")
 	fs.Parse(args)
+	rejectUnexpectedArgs(fs)
 
 	out, err := pipeline.Run(*dataDir)
 	if err != nil {
@@ -103,6 +104,7 @@ func runValidate(args []string) {
 	fs := flag.NewFlagSet("validate", flag.ExitOnError)
 	dataDir := fs.String("data", "data", "path to the data directory")
 	fs.Parse(args)
+	rejectUnexpectedArgs(fs)
 
 	out, cat := loadPipelineAndCatalog(*dataDir)
 	result := validation.Validate(cat, out.Requests)
@@ -133,6 +135,18 @@ func loadPipelineAndCatalog(dataDir string) (pipeline.Output, *catalog.Catalog) 
 		fatal(err)
 	}
 	return out, cat
+}
+
+// rejectUnexpectedArgs errors out on leftover positional args instead of
+// silently ignoring them — e.g. `-data foo student meridian:10042` given
+// before any subcommand token would otherwise fall back to the default
+// `run` command and silently swallow "student meridian:10042" rather than
+// running the student subcommand or reporting the mistake.
+func rejectUnexpectedArgs(fs *flag.FlagSet) {
+	if fs.NArg() > 0 {
+		fmt.Fprintf(os.Stderr, "%s: unexpected arguments: %v (a subcommand must come before any flags)\n", fs.Name(), fs.Args())
+		os.Exit(1)
+	}
 }
 
 func fatal(err error) {
