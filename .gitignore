@@ -1,2 +1,3 @@
 .idea
 .claude/scheduled_tasks.lock
+/output/
