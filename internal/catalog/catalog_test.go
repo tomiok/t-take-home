@@ -113,4 +113,8 @@ func TestLoad_RealCatalogFixture(t *testing.T) {
 	if len(mth202.Corequisites) != 0 {
 		t.Errorf("MTH202.Corequisites = %v, want empty (asymmetric in source data)", mth202.Corequisites)
 	}
+
+	if got := len(c.All()); got != c.Len() {
+		t.Errorf("len(All()) = %d, want %d (Len())", got, c.Len())
+	}
 }

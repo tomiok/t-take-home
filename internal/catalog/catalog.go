@@ -47,3 +47,12 @@ func (c *Catalog) Lookup(code string) (domain.Course, bool) {
 func (c *Catalog) Len() int {
 	return len(c.courses)
 }
+
+// All returns every course in the catalog, in no particular order.
+func (c *Catalog) All() []domain.Course {
+	courses := make([]domain.Course, 0, len(c.courses))
+	for _, course := range c.courses {
+		courses = append(courses, course)
+	}
+	return courses
+}
