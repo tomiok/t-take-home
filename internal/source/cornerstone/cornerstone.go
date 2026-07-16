@@ -48,13 +48,15 @@ func loadFile(path string, reqType domain.RequestType, result *source.Result, se
 		return fmt.Errorf("cornerstone file %s: empty file", path)
 	}
 
+	col, err := columnIndex(rows[0], "student_email", "course_code", "terms")
+	if err != nil {
+		return fmt.Errorf("cornerstone file %s: %w", path, err)
+	}
+
 	for _, row := range rows[1:] {
-		rawEmail := row[0]
-		courseCode := strings.TrimSpace(row[1])
-		terms := ""
-		if len(row) > 2 {
-			terms = strings.TrimSpace(row[2])
-		}
+		rawEmail := row[col["student_email"]]
+		courseCode := strings.TrimSpace(row[col["course_code"]])
+		terms := strings.TrimSpace(row[col["terms"]])
 
 		// Raw emails have case/whitespace noise (e.g. " Marcus.Thompson@cornerstone.edu ");
 		// normalize before using as the join key, or the same student
@@ -93,4 +95,17 @@ func loadFile(path string, reqType domain.RequestType, result *source.Result, se
 	}
 
 	return nil
+}
+
+func columnIndex(header []string, required ...string) (map[string]int, error) {
+	idx := make(map[string]int, len(header))
+	for i, name := range header {
+		idx[strings.TrimSpace(name)] = i
+	}
+	for _, name := range required {
+		if _, ok := idx[name]; !ok {
+			return nil, fmt.Errorf("missing expected column %q", name)
+		}
+	}
+	return idx, nil
 }
