@@ -1,0 +1,52 @@
+{
+  "school": "Apex Charter",
+  "sisVendor": "Apex",
+  "notes": "Requests are ranked; lower rank = higher priority. A rank of 500 is Apex's sentinel for a backup/alternate request (it is NOT a real priority position). Course identifiers are local Apex course numbers; map them to district codes with course_crosswalk.csv.",
+  "students": [
+    {
+      "stateStudentId": "CA-2291043",
+      "name": "Sofia Mendez",
+      "gradeLevel": 11,
+      "requests": [
+        { "courseNumber": "0140", "rank": 1 },
+        { "courseNumber": "0250", "rank": 2 },
+        { "courseNumber": "0560", "rank": 3 },
+        { "courseNumber": "0640", "rank": 4 },
+        { "courseNumber": "0815", "rank": 500 }
+      ]
+    },
+    {
+      "stateStudentId": "CA-2291100",
+      "name": "Liam Brooks",
+      "gradeLevel": 12,
+      "requests": [
+        { "courseNumber": "0231", "rank": 1 },
+        { "courseNumber": "0410", "rank": 2 },
+        { "courseNumber": "0521", "rank": 3 },
+        { "courseNumber": "0633", "rank": 4 },
+        { "courseNumber": "0815", "rank": 500 }
+      ]
+    },
+    {
+      "stateStudentId": "CA-2291205",
+      "name": "Hana Kim",
+      "gradeLevel": 11,
+      "requests": [
+        { "courseNumber": "0140", "rank": 1 },
+        { "courseNumber": "0250", "rank": 2 },
+        { "courseNumber": "0999", "rank": 3 },
+        { "courseNumber": "0720", "rank": 500 }
+      ]
+    },
+    {
+      "stateStudentId": "CA-2291309",
+      "name": "Diego Ruiz",
+      "gradeLevel": 12,
+      "requests": [
+        { "courseNumber": "0231", "rank": 1 },
+        { "courseNumber": "0410", "rank": 2 },
+        { "courseNumber": "0640", "rank": 3 }
+      ]
+    }
+  ]
+}

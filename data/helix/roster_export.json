@@ -1,0 +1,46 @@
+{
+  "school": "Helix Academy",
+  "sisVendor": "Helix",
+  "notes": "Course requests are embedded per student. Courses are identified by Helix internal UUIDs; resolve them with course_map.json. A request that is part of a multi-term sequence carries a chainId and chainSeq. Alternates are listed separately per student.",
+  "roster": [
+    {
+      "studentId": "HX-558",
+      "name": "Liam O'Brien",
+      "grade": 12,
+      "courseRequests": [
+        { "helixCourseUuid": "a1b2c3", "isRequired": true },
+        { "helixCourseUuid": "c3d4e5", "isRequired": true, "chainId": "CHAIN-7", "chainSeq": 1 },
+        { "helixCourseUuid": "e5f6a7", "isRequired": true, "chainId": "CHAIN-7", "chainSeq": 2 },
+        { "helixCourseUuid": "b2c3d4", "isRequired": true },
+        { "helixCourseUuid": "d4e5f6", "isRequired": true }
+      ],
+      "alternates": [
+        { "helixCourseUuid": "f6a7b8" }
+      ]
+    },
+    {
+      "studentId": "HX-560",
+      "name": "Grace Liu",
+      "grade": 11,
+      "courseRequests": [
+        { "helixCourseUuid": "a7b8c9", "isRequired": true },
+        { "helixCourseUuid": "c9d0e1", "isRequired": true },
+        { "helixCourseUuid": "zz9zz9", "isRequired": true }
+      ],
+      "alternates": []
+    },
+    {
+      "studentId": "HX-565",
+      "name": "Omar Haddad",
+      "grade": 12,
+      "courseRequests": [
+        { "helixCourseUuid": "a1b2c3", "isRequired": true },
+        { "helixCourseUuid": "b2c3d4", "isRequired": true }
+      ],
+      "alternates": [
+        { "helixCourseUuid": "f6a7b8" },
+        { "helixCourseUuid": "c9d0e1" }
+      ]
+    }
+  ]
+}
