@@ -33,36 +33,37 @@ type Output struct {
 // (dataDir/meridian, dataDir/apex, dataDir/cornerstone, dataDir/helix) and
 // combines them into one Output.
 func Run(dataDir string) (Output, error) {
-	loaders := []func() (source.Result, error){
-		func() (source.Result, error) {
-			return meridian.Load(filepath.Join(dataDir, "meridian", "course_requests.csv"))
-		},
-		func() (source.Result, error) {
-			return apex.Load(
-				filepath.Join(dataDir, "apex", "requests.json"),
-				filepath.Join(dataDir, "apex", "course_crosswalk.csv"),
-			)
-		},
-		func() (source.Result, error) {
-			return cornerstone.Load(
-				filepath.Join(dataDir, "cornerstone", "primary_requests.csv"),
-				filepath.Join(dataDir, "cornerstone", "alternate_requests.csv"),
-			)
-		},
-		func() (source.Result, error) {
-			return helix.Load(
-				filepath.Join(dataDir, "helix", "roster_export.json"),
-				filepath.Join(dataDir, "helix", "course_map.json"),
-			)
-		},
+	meridianResult, err := meridian.Load(filepath.Join(dataDir, "meridian", "course_requests.csv"))
+	if err != nil {
+		return Output{}, fmt.Errorf("loading meridian: %w", err)
+	}
+
+	apexResult, err := apex.Load(
+		filepath.Join(dataDir, "apex", "requests.json"),
+		filepath.Join(dataDir, "apex", "course_crosswalk.csv"),
+	)
+	if err != nil {
+		return Output{}, fmt.Errorf("loading apex: %w", err)
+	}
+
+	cornerstoneResult, err := cornerstone.Load(
+		filepath.Join(dataDir, "cornerstone", "primary_requests.csv"),
+		filepath.Join(dataDir, "cornerstone", "alternate_requests.csv"),
+	)
+	if err != nil {
+		return Output{}, fmt.Errorf("loading cornerstone: %w", err)
+	}
+
+	helixResult, err := helix.Load(
+		filepath.Join(dataDir, "helix", "roster_export.json"),
+		filepath.Join(dataDir, "helix", "course_map.json"),
+	)
+	if err != nil {
+		return Output{}, fmt.Errorf("loading helix: %w", err)
 	}
 
 	var out Output
-	for _, load := range loaders {
-		result, err := load()
-		if err != nil {
-			return Output{}, fmt.Errorf("loading source: %w", err)
-		}
+	for _, result := range []source.Result{meridianResult, apexResult, cornerstoneResult, helixResult} {
 		out.Students = append(out.Students, result.Students...)
 		out.Requests = append(out.Requests, result.Requests...)
 		out.Issues = append(out.Issues, result.Issues...)
