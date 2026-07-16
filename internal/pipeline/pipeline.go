@@ -78,7 +78,7 @@ func Write(out Output, path string) error {
 	if err != nil {
 		return fmt.Errorf("marshaling unified output: %w", err)
 	}
-	if err := os.WriteFile(path, data, 0o644); err != nil {
+	if err = os.WriteFile(path, data, 0o644); err != nil {
 		return fmt.Errorf("writing unified output to %s: %w", path, err)
 	}
 	return nil

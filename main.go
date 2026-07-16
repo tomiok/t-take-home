@@ -37,7 +37,10 @@ func runPipeline(args []string) {
 	fs := flag.NewFlagSet("run", flag.ExitOnError)
 	dataDir := fs.String("data", "data", "path to the data directory containing catalog/, meridian/, apex/, cornerstone/, helix/")
 	outPath := fs.String("out", filepath.Join("output", "unified_requests.json"), "path to write the unified course-request output to")
-	fs.Parse(args)
+	err := fs.Parse(args)
+	if err != nil {
+		return
+	}
 	rejectUnexpectedArgs(fs)
 
 	out, err := pipeline.Run(*dataDir)
@@ -45,10 +48,10 @@ func runPipeline(args []string) {
 		fatal(err)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(*outPath), 0o755); err != nil {
+	if err = os.MkdirAll(filepath.Dir(*outPath), 0o755); err != nil {
 		fatal(err)
 	}
-	if err := pipeline.Write(out, *outPath); err != nil {
+	if err = pipeline.Write(out, *outPath); err != nil {
 		fatal(err)
 	}
 
@@ -58,10 +61,16 @@ func runPipeline(args []string) {
 func runStudent(args []string) {
 	fs := flag.NewFlagSet("student", flag.ExitOnError)
 	dataDir := fs.String("data", "data", "path to the data directory")
-	fs.Parse(args)
+	err := fs.Parse(args)
+	if err != nil {
+		return
+	}
 
 	if fs.NArg() != 1 {
-		fmt.Fprintln(os.Stderr, "usage: student [-data DIR] <student-id>  (e.g. meridian:10042)")
+		_, err = fmt.Fprintln(os.Stderr, "usage: student [-data DIR] <student-id>  (e.g. meridian:10042)")
+		if err != nil {
+			return
+		}
 		os.Exit(1)
 	}
 	studentID := fs.Arg(0)
@@ -70,7 +79,10 @@ func runStudent(args []string) {
 
 	summary, found := report.BuildStudentSummary(out, cat, studentID)
 	if !found {
-		fmt.Fprintf(os.Stderr, "no student found with id %q\n", studentID)
+		_, err = fmt.Fprintf(os.Stderr, "no student found with id %q\n", studentID)
+		if err != nil {
+			return
+		}
 		os.Exit(1)
 	}
 
@@ -103,7 +115,10 @@ func printCourseViews(label string, views []report.CourseView) {
 func runValidate(args []string) {
 	fs := flag.NewFlagSet("validate", flag.ExitOnError)
 	dataDir := fs.String("data", "data", "path to the data directory")
-	fs.Parse(args)
+	err := fs.Parse(args)
+	if err != nil {
+		return
+	}
 	rejectUnexpectedArgs(fs)
 
 	out, cat := loadPipelineAndCatalog(*dataDir)
@@ -144,12 +159,18 @@ func loadPipelineAndCatalog(dataDir string) (pipeline.Output, *catalog.Catalog) 
 // running the student subcommand or reporting the mistake.
 func rejectUnexpectedArgs(fs *flag.FlagSet) {
 	if fs.NArg() > 0 {
-		fmt.Fprintf(os.Stderr, "%s: unexpected arguments: %v (a subcommand must come before any flags)\n", fs.Name(), fs.Args())
+		_, err := fmt.Fprintf(os.Stderr, "%s: unexpected arguments: %v (a subcommand must come before any flags)\n", fs.Name(), fs.Args())
+		if err != nil {
+			return
+		}
 		os.Exit(1)
 	}
 }
 
 func fatal(err error) {
-	fmt.Fprintln(os.Stderr, "error:", err)
+	_, err = fmt.Fprintln(os.Stderr, "error:", err)
+	if err != nil {
+		return
+	}
 	os.Exit(1)
 }
