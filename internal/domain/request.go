@@ -12,12 +12,19 @@ const (
 
 // Student is a district student, identified by a source-qualified ID since
 // raw IDs (a local numeric ID, an email, a state ID) are only unique within
-// their own SIS.
+// their own SIS. Use StudentKey to build that ID consistently.
 type Student struct {
 	ID     string
 	Name   string
 	Grade  int
 	Source string
+}
+
+// StudentKey builds the source-qualified student ID used as Student.ID and
+// CourseRequest.StudentID, so every adapter joins students the same way
+// instead of each inventing its own qualification scheme.
+func StudentKey(source, rawID string) string {
+	return source + ":" + rawID
 }
 
 // CourseRequest is the unified shape every SIS adapter produces, regardless
@@ -37,4 +44,7 @@ type CourseRequest struct {
 	// that produces it.
 	Rank   int
 	Source string
+	// Terms is source-specific scheduling metadata (e.g. Cornerstone's
+	// FULL/S1/Q1;Q2); empty for sources that don't express it.
+	Terms string
 }
