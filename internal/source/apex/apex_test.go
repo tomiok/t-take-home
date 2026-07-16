@@ -104,6 +104,9 @@ func TestLoad_UnmappedCourseNumberKeepsRawIdentifierWithIssue(t *testing.T) {
 	if result.Requests[0].CourseCode != "0999" {
 		t.Errorf("CourseCode = %q, want raw %q kept when crosswalk has no entry", result.Requests[0].CourseCode, "0999")
 	}
+	if result.Requests[0].Type != domain.Required {
+		t.Errorf("Type = %v, want Required — an unresolved course number at a real priority rank must not be conflated with a backup", result.Requests[0].Type)
+	}
 	if len(result.Issues) != 1 {
 		t.Fatalf("len(Issues) = %d, want 1", len(result.Issues))
 	}

@@ -72,13 +72,16 @@ func Load(requestsPath, crosswalkPath string) (source.Result, error) {
 			}
 
 			reqType := domain.Required
-			rank := req.Rank - 1
 			if req.Rank == backupSentinelRank {
 				reqType = domain.Elective
-				rankKey := studentID + "|" + string(reqType)
-				rank = rankCounter[rankKey]
-				rankCounter[rankKey] = rank + 1
 			}
+
+			// A running counter per (student, type), matching the
+			// Meridian adapter's convention — robust to non-contiguous
+			// or duplicate rank values, unlike using req.Rank directly.
+			rankKey := studentID + "|" + string(reqType)
+			rank := rankCounter[rankKey]
+			rankCounter[rankKey] = rank + 1
 
 			result.Requests = append(result.Requests, domain.CourseRequest{
 				StudentID:  studentID,
