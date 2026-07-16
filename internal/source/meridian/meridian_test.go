@@ -114,6 +114,24 @@ func TestLoad_RankIsPerStudentPerType(t *testing.T) {
 	}
 }
 
+func TestLoad_UnparseableGradeDefaultsToZeroWithIssue(t *testing.T) {
+	path := writeCSV(t, `student_id,student_name,grade,course_code,request_type
+10099,Jordan Lee,N/A,MTH101,REQUIRED
+`)
+
+	result, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load() error: %v", err)
+	}
+
+	if len(result.Students) != 1 || result.Students[0].Grade != 0 {
+		t.Fatalf("Students = %+v, want one student with Grade 0", result.Students)
+	}
+	if len(result.Issues) != 1 {
+		t.Fatalf("len(Issues) = %d, want 1", len(result.Issues))
+	}
+}
+
 func TestLoad_MissingFile(t *testing.T) {
 	_, err := Load(filepath.Join(t.TempDir(), "does-not-exist.csv"))
 	if err == nil {
@@ -127,11 +145,13 @@ func TestLoad_RealFixture(t *testing.T) {
 		t.Fatalf("Load() real fixture: %v", err)
 	}
 
-	if len(result.Students) == 0 || len(result.Requests) == 0 {
-		t.Fatalf("Load() real fixture returned no students/requests: %+v", result)
+	if len(result.Students) != 5 {
+		t.Errorf("len(Students) = %d, want 5", len(result.Students))
 	}
-
-	if len(result.Issues) == 0 {
-		t.Error("Load() real fixture: want at least one issue (known duplicate AT101 row + blank request_type row), got none")
+	if len(result.Requests) != 24 {
+		t.Errorf("len(Requests) = %d, want 24 (25 data rows, minus one deduped AT101 duplicate)", len(result.Requests))
+	}
+	if len(result.Issues) != 2 {
+		t.Errorf("len(Issues) = %d, want 2 (the AT101 duplicate + the blank request_type row)", len(result.Issues))
 	}
 }

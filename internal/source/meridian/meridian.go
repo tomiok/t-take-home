@@ -55,7 +55,14 @@ func Load(path string) (source.Result, error) {
 
 		studentID := domain.StudentKey(sourceName, studentRawID)
 		if !seenStudents[studentID] {
-			grade, _ := strconv.Atoi(strings.TrimSpace(row[col["grade"]]))
+			grade, gradeErr := strconv.Atoi(strings.TrimSpace(row[col["grade"]]))
+			if gradeErr != nil {
+				result.Issues = append(result.Issues, source.Issue{
+					Source:  sourceName,
+					Student: studentRawID,
+					Detail:  fmt.Sprintf("unparseable grade %q; defaulting to 0", row[col["grade"]]),
+				})
+			}
 			result.Students = append(result.Students, domain.Student{
 				ID:     studentID,
 				Name:   strings.TrimSpace(row[col["student_name"]]),
@@ -74,6 +81,10 @@ func Load(path string) (source.Result, error) {
 			})
 		}
 
+		// Keyed on the resolved reqType, not the raw string, so a blank
+		// request_type and an explicit one for the same course won't both
+		// dedupe and won't both surface as conflicting requests — this
+		// feed's sample data never has that overlap, so it's untested.
 		dedupeKey := studentID + "|" + courseCode + "|" + string(reqType)
 		if seenRequests[dedupeKey] {
 			result.Issues = append(result.Issues, source.Issue{
