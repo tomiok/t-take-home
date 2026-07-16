@@ -122,6 +122,12 @@ func resolveCourse(uuid string, courseMap map[string]string, result *source.Resu
 // sequence (shared chainId) stays contiguous and in chainSeq order, anchored
 // at the earliest file position any of its members appear at. Requests
 // without a chainId keep plain file order.
+//
+// Because a whole chain is pulled to its earliest member's position, a
+// chain member appearing later in the file can jump forward ahead of
+// unrelated items (or other chains) that originally sat between it and the
+// anchor — contiguity of the sequence wins over preserving every other
+// item's original relative position.
 func chainOrderedIndices(requests []courseRequest) []int {
 	anchor := make(map[string]int)
 	for i, r := range requests {

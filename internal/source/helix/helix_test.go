@@ -92,6 +92,46 @@ func TestLoad_ChainSequenceStaysOrderedAndContiguous(t *testing.T) {
 	}
 }
 
+func TestLoad_InterleavedChainsPullMembersForwardToTheirAnchor(t *testing.T) {
+	// File order: chainA-seq1(0), unrelated(1), chainB-seq1(2), chainB-seq2(3),
+	// unrelated(4), chainA-seq2(5). Both chains' second halves jump forward
+	// to sit right after their anchor, ahead of items that were originally
+	// between them and the anchor in the file — the documented tradeoff in
+	// chainOrderedIndices: sequence contiguity wins over everything else's
+	// original relative position.
+	rosterPath, mapPath := writeFixtures(t, `{"roster": [
+		{"studentId": "HX-1", "name": "Test Student", "grade": 12,
+		 "courseRequests": [
+			{"helixCourseUuid": "a1b2c3", "isRequired": true, "chainId": "A", "chainSeq": 1},
+			{"helixCourseUuid": "f6a7b8", "isRequired": true},
+			{"helixCourseUuid": "c3d4e5", "isRequired": true, "chainId": "B", "chainSeq": 1},
+			{"helixCourseUuid": "e5f6a7", "isRequired": true, "chainId": "B", "chainSeq": 2},
+			{"helixCourseUuid": "e5f6a7", "isRequired": true},
+			{"helixCourseUuid": "a1b2c3", "isRequired": true, "chainId": "A", "chainSeq": 2}
+		 ],
+		 "alternates": []}
+	]}`, courseMap)
+
+	result, err := Load(rosterPath, mapPath)
+	if err != nil {
+		t.Fatalf("Load() error: %v", err)
+	}
+
+	// Chain A (both seq members map to MTH401 in this fixture) is anchored
+	// at index 0 and stays contiguous: its seq-2 member (file index 5)
+	// jumps ahead of the unrelated item at index 1 and all of chain B.
+	wantOrder := []string{"MTH401", "MTH401", "AT301", "ENG401", "ENG402", "ENG402"}
+	got := requestCodes(result.Requests)
+	if len(got) != len(wantOrder) {
+		t.Fatalf("got %v, want %v", got, wantOrder)
+	}
+	for i, want := range wantOrder {
+		if got[i] != want {
+			t.Errorf("Requests[%d].CourseCode = %q, want %q (full order: %v)", i, got[i], want, got)
+		}
+	}
+}
+
 func requestCodes(reqs []domain.CourseRequest) []string {
 	codes := make([]string, len(reqs))
 	for i, r := range reqs {
